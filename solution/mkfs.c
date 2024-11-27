@@ -7,6 +7,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "wfs.h"
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <time.h>
 
 // Constants
 #define MIN_DISKS 2
@@ -97,20 +101,33 @@ void parse_args(int argc, char *argv[]) {
 }
 
 void calculate_disk_layout(size_t *disk_size) {
-    size_t total_size = 0;
-    size_t inode_bitmap_size = (num_inodes + 7) / 8; // Round up to nearest byte
-    size_t data_bitmap_size = (num_data_blocks + 7) / 8; // Round up to nearest byte
-    inode_bitmap_size = (inode_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to 512 bytes
-    data_bitmap_size = (data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to 512 bytes
+    // Round up inodes and data blocks to nearest multiple of 32
+    num_inodes = ((num_inodes + 31) / 32) * 32;
+    num_data_blocks = ((num_data_blocks + 31) / 32) * 32;
 
-    size_t inode_region_size = num_inodes * BLOCK_SIZE; // Each inode is 512 bytes
-    size_t data_region_size = num_data_blocks * BLOCK_SIZE; // Data blocks
+    // Correct bitmap size calculations
+    size_t inode_bitmap_size = num_inodes / 8; // Exact size in bytes
+    size_t data_bitmap_size = num_data_blocks / 8; // Exact size in bytes
 
-    total_size = BLOCK_SIZE + // Superblock
-                 inode_bitmap_size + // Inode bitmap
-                 data_bitmap_size + // Data bitmap
-                 inode_region_size + // Inode region
-                 data_region_size;   // Data blocks
+    // Superblock
+    struct wfs_sb sb;
+    sb.num_inodes = num_inodes; // Updated after rounding
+    sb.num_data_blocks = num_data_blocks; // Updated after rounding
+
+    // Set offsets
+    sb.i_bitmap_ptr = BLOCK_SIZE; // Superblock is 512 bytes
+    sb.d_bitmap_ptr = sb.i_bitmap_ptr + inode_bitmap_size;
+    sb.i_blocks_ptr = (sb.d_bitmap_ptr + data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to block
+    sb.d_blocks_ptr = sb.i_blocks_ptr + (num_inodes * BLOCK_SIZE);
+
+    size_t total_size = sb.d_blocks_ptr + (num_data_blocks * BLOCK_SIZE);
+
+    printf("Superblock:\n");
+    printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
+    printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
+    printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
+    printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
+    printf("  Total size: %zu bytes\n", total_size);
 
     // Ensure all disks are large enough
     for (size_t i = 0; i < num_disks; i++) {
@@ -125,23 +142,86 @@ void calculate_disk_layout(size_t *disk_size) {
         }
         disk_size[i] = st.st_size;
     }
+}
 
-    // Update superblock pointers
+// Function to initialize the disk
+void initialize_disk(size_t *disk_size) {
+    // Allocate memory for bitmaps
+    size_t inode_bitmap_size = (num_inodes + 7) / 8; // Round up to nearest byte
+   
+    size_t data_bitmap_size = (num_data_blocks + 7) / 8; // Round up to nearest byte
+   
+    char *inode_bitmap = calloc(1, inode_bitmap_size);
+    char *data_bitmap = calloc(1, data_bitmap_size);
+    if (!inode_bitmap || !data_bitmap) {
+        perror("Error allocating memory for bitmaps");
+        exit(EXIT_FAILURE);
+    }
+
+    inode_bitmap[0] |= 1; // Set the first bit of the first byte to 1
+
+    // Initialize superblock
     struct wfs_sb sb;
     sb.num_inodes = num_inodes;
     sb.num_data_blocks = num_data_blocks;
     sb.i_bitmap_ptr = BLOCK_SIZE;
     sb.d_bitmap_ptr = sb.i_bitmap_ptr + inode_bitmap_size;
-    sb.i_blocks_ptr = sb.d_bitmap_ptr + data_bitmap_size;
-    sb.d_blocks_ptr = sb.i_blocks_ptr + inode_region_size;
+    sb.i_blocks_ptr = (sb.d_bitmap_ptr + data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
+    sb.d_blocks_ptr = sb.i_blocks_ptr + (num_inodes * BLOCK_SIZE);
 
-    printf("Superblock:\n");
-    printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
-    printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
-    printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
-    printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
-    printf("  Total size: %zu bytes\n", total_size);
+    // Initialize root inode
+    struct wfs_inode root_inode = {
+        .num = 0,
+        .mode = S_IFDIR | 0755,
+        .uid = getuid(),
+        .gid = getgid(),
+        .size = 0,
+        .nlinks = 2,
+        .atim = time(NULL),
+        .mtim = time(NULL),
+        .ctim = time(NULL)
+    };
+    memset(root_inode.blocks, 0, sizeof(root_inode.blocks));
+
+    // Write to each disk
+    for (size_t i = 0; i < num_disks; i++) {
+        int fd = open(disk_files[i], O_RDWR);
+        if (fd == -1) {
+            perror("Error opening disk file");
+            exit(EXIT_FAILURE);
+        }
+
+        // Map the disk into memory
+        void *disk = mmap(NULL, disk_size[i], PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if (disk == MAP_FAILED) {
+            perror("Error mapping disk file");
+            close(fd);
+            exit(EXIT_FAILURE);
+        }
+
+        // Write superblock
+        memcpy(disk, &sb, sizeof(sb));
+
+        // Write bitmaps
+        memcpy((char *)disk + sb.i_bitmap_ptr, inode_bitmap, inode_bitmap_size);
+        memcpy((char *)disk + sb.d_bitmap_ptr, data_bitmap, data_bitmap_size);
+
+        // Write root inode
+        memcpy((char *)disk + sb.i_blocks_ptr, &root_inode, sizeof(root_inode));
+
+        // Synchronize and unmap
+        msync(disk, disk_size[i], MS_SYNC);
+        munmap(disk, disk_size[i]);
+        close(fd);
+    }
+
+    // Free allocated memory
+    free(inode_bitmap);
+    free(data_bitmap);
+
+    printf("Disk initialization complete.\n");
 }
+
 
 int main(int argc, char *argv[]) {
     parse_args(argc, argv);
@@ -163,6 +243,7 @@ int main(int argc, char *argv[]) {
     }
 
     calculate_disk_layout(disk_size);
+    initialize_disk(disk_size);
 
     // Free allocated memory
     free(disk_files);

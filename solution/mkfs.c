@@ -138,7 +138,7 @@ void calculate_disk_layout(size_t *disk_size) {
         }
         if ((size_t)st.st_size < total_size) {
             fprintf(stderr, "Error: Disk file %s is too small. Minimum size: %zu bytes.\n", disk_files[i], total_size);
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         disk_size[i] = st.st_size;
     }

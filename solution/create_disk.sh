@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Default values
 DISK_COUNT=2
 DISK_SIZE_MB=1

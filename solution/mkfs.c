@@ -1,139 +1,115 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "wfs.h"
 
-#define BLOCK_SIZE 512 // Fixed block size
-#define MAX_DISKS 10   // Max number of disks supported
+// Constants
+#define MIN_DISKS 2
+#define RAID0 0
+#define RAID1 1
+#define RAID1V 2
 
-// Superblock structure
-struct superblock {
-    char raid_mode;
-    int inode_count;
-    int block_count;
-    int disk_count;
-    int magic_number;
-};
+// Global variables for RAID and other inputs
+int raid_mode = -1;
+char **disk_files = NULL;
+size_t num_disks = 0;
+size_t num_inodes = 0;
+size_t num_data_blocks = 0;
 
-// Bitmap initialization
-void initialize_bitmap(char *bitmap, int size) {
-    memset(bitmap, 0, size);
+// Function to print usage
+void print_usage(const char *prog_name) {
+    fprintf(stderr, "Usage: %s -r <raid_mode> -d <disk_file> [-d <disk_file> ...] -i <num_inodes> -b <num_data_blocks>\n", prog_name);
+    fprintf(stderr, "  <raid_mode>: 0 for RAID 0, 1 for RAID 1, 1v for RAID 1v\n");
+    exit(EXIT_FAILURE);
+}
+
+// Function to parse command-line arguments
+void parse_args(int argc, char *argv[]) {
+    if (argc < 7) {
+        print_usage(argv[0]);
+    }
+
+    int opt;
+    while ((opt = getopt(argc, argv, "r:d:i:b:")) != -1) {
+        switch (opt) {
+        case 'r':
+            if (strcmp(optarg, "0") == 0) {
+                raid_mode = RAID0;
+            } else if (strcmp(optarg, "1") == 0) {
+                raid_mode = RAID1;
+            } else if (strcmp(optarg, "1v") == 0) {
+                raid_mode = RAID1V;
+            } else {
+                fprintf(stderr, "Error: Invalid RAID mode. Use 0, 1, or 1v.\n");
+                print_usage(argv[0]);
+            }
+            break;
+        case 'd':
+            disk_files = realloc(disk_files, (num_disks + 1) * sizeof(char *));
+            if (!disk_files) {
+                perror("Error reallocating memory for disk files");
+                exit(EXIT_FAILURE);
+            }
+            disk_files[num_disks++] = optarg;
+            break;
+        case 'i':
+            num_inodes = atoi(optarg);
+            if (num_inodes == 0) {
+                fprintf(stderr, "Error: Invalid number of inodes.\n");
+                print_usage(argv[0]);
+            }
+            break;
+        case 'b':
+            num_data_blocks = atoi(optarg);
+            if (num_data_blocks == 0) {
+                fprintf(stderr, "Error: Invalid number of data blocks.\n");
+                print_usage(argv[0]);
+            }
+            break;
+        default:
+            print_usage(argv[0]);
+        }
+    }
+
+    // Post-processing validation
+    if (raid_mode == -1) {
+        fprintf(stderr, "Error: RAID mode not specified.\n");
+        print_usage(argv[0]);
+    }
+    if (num_disks < MIN_DISKS) {
+        fprintf(stderr, "Error: At least %d disk files are required.\n", MIN_DISKS);
+        print_usage(argv[0]);
+    }
+    if (num_inodes == 0 || num_data_blocks == 0) {
+        fprintf(stderr, "Error: Number of inodes and data blocks must be greater than zero.\n");
+        print_usage(argv[0]);
+    }
+
+    // Round data blocks to nearest multiple of 32
+    if (num_data_blocks % 32 != 0) {
+        num_data_blocks = ((num_data_blocks / 32) + 1) * 32;
+    }
 }
 
 int main(int argc, char *argv[]) {
-    int opt;
-    char raid_mode = -1;
-    int inode_count = -1;
-    int block_count = -1;
-    char *disks[MAX_DISKS];
-    int disk_count = 0;
+    parse_args(argc, argv);
 
-    while ((opt = getopt(argc, argv, "r:d:i:b:")) != -1) {
-        switch (opt) {
-            case 'r':
-                if (strcmp(optarg, "0") == 0 || strcmp(optarg, "1") == 0 || strcmp(optarg, "1v") == 0) {
-                    raid_mode = optarg[0];
-                } else {
-                    fprintf(stderr, "Invalid RAID mode. Use 0, 1, or 1v.\n");
-                    exit(EXIT_FAILURE);
-                }
-                break;
-            case 'd':
-                if (disk_count < MAX_DISKS) {
-                    disks[disk_count++] = optarg;
-                } else {
-                    fprintf(stderr, "Too many disks specified (max %d).\n", MAX_DISKS);
-                    exit(EXIT_FAILURE);
-                }
-                break;
-            case 'i':
-                inode_count = atoi(optarg);
-                if (inode_count <= 0) {
-                    fprintf(stderr, "Invalid number of inodes.\n");
-                    exit(EXIT_FAILURE);
-                }
-                break;
-            case 'b':
-                block_count = atoi(optarg);
-                if (block_count <= 0) {
-                    fprintf(stderr, "Invalid number of data blocks.\n");
-                    exit(EXIT_FAILURE);
-                }
-                break;
-            default:
-                fprintf(stderr, "Usage: %s -r <raid_mode> -d <disk_image> -i <num_inodes> -b <num_blocks>\n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
+    // For now, print parsed arguments for debugging
+    printf("RAID mode: %d\n", raid_mode);
+    printf("Number of disks: %zu\n", num_disks);
+    for (size_t i = 0; i < num_disks; i++) {
+        printf("Disk %zu: %s\n", i + 1, disk_files[i]);
     }
+    printf("Number of inodes: %zu\n", num_inodes);
+    printf("Number of data blocks: %zu\n", num_data_blocks);
 
-    // Validate arguments
-    if (raid_mode == -1 || disk_count == 0 || inode_count == -1 || block_count == -1) {
-        fprintf(stderr, "Missing required arguments.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Round block count to nearest multiple of 32
-    if (block_count % 32 != 0) {
-        block_count = ((block_count / 32) + 1) * 32;
-    }
-
-    // Initialize filesystem structures
-    struct superblock sb = {
-        .raid_mode = raid_mode,
-        .inode_count = inode_count,
-        .block_count = block_count,
-        .disk_count = disk_count,
-        .magic_number = 0x5376 // Example magic number
-    };
-
-    int bitmap_size = (inode_count + block_count) / 8 + 1; // Bytes needed for bitmaps
-
-    // Open and initialize disks
-    for (int i = 0; i < disk_count; i++) {
-        int fd = open(disks[i], O_RDWR);
-        if (fd < 0) {
-            fprintf(stderr, "Error: Cannot open disk file %s.\n", disks[i]);
-            exit(EXIT_FAILURE);
-        }
-
-        // Map disk image into memory
-        void *disk_map = mmap(NULL, block_count * BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-        if (disk_map == MAP_FAILED) {
-            fprintf(stderr, "Error mapping disk %s: %s\n", disks[i], strerror(errno));
-            close(fd);
-            exit(EXIT_FAILURE);
-        }
-
-        // Write superblock
-        memcpy(disk_map, &sb, sizeof(sb));
-
-        // Initialize inode and block bitmaps
-        char *inode_bitmap = (char *)disk_map + sizeof(sb);
-        char *block_bitmap = inode_bitmap + bitmap_size / 2; // Assuming equal size for inodes and blocks
-        initialize_bitmap(inode_bitmap, bitmap_size / 2);
-        initialize_bitmap(block_bitmap, bitmap_size / 2);
-
-        // Initialize root inode (simple example, adjust as needed)
-        struct {
-            int size;
-            int direct_blocks[10];
-            int indirect_block;
-        } root_inode = {
-            .size = 0,
-            .direct_blocks = {0},
-            .indirect_block = 0
-        };
-        memcpy((char *)disk_map + sizeof(sb) + bitmap_size, &root_inode, sizeof(root_inode));
-
-        printf("Initialized disk %s with superblock and root inode.\n", disks[i]);
-
-        munmap(disk_map, block_count * BLOCK_SIZE);
-        close(fd);
-    }
+    // Free allocated memory
+    free(disk_files);
 
     return 0;
 }

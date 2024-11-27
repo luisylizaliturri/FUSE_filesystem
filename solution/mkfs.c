@@ -96,6 +96,53 @@ void parse_args(int argc, char *argv[]) {
     }
 }
 
+void calculate_disk_layout(size_t *disk_size) {
+    size_t total_size = 0;
+    size_t inode_bitmap_size = (num_inodes + 7) / 8; // Round up to nearest byte
+    size_t data_bitmap_size = (num_data_blocks + 7) / 8; // Round up to nearest byte
+    inode_bitmap_size = (inode_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to 512 bytes
+    data_bitmap_size = (data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to 512 bytes
+
+    size_t inode_region_size = num_inodes * BLOCK_SIZE; // Each inode is 512 bytes
+    size_t data_region_size = num_data_blocks * BLOCK_SIZE; // Data blocks
+
+    total_size = BLOCK_SIZE + // Superblock
+                 inode_bitmap_size + // Inode bitmap
+                 data_bitmap_size + // Data bitmap
+                 inode_region_size + // Inode region
+                 data_region_size;   // Data blocks
+
+    // Ensure all disks are large enough
+    for (size_t i = 0; i < num_disks; i++) {
+        struct stat st;
+        if (stat(disk_files[i], &st) == -1) {
+            perror("Error accessing disk file");
+            exit(EXIT_FAILURE);
+        }
+        if ((size_t)st.st_size < total_size) {
+            fprintf(stderr, "Error: Disk file %s is too small. Minimum size: %zu bytes.\n", disk_files[i], total_size);
+            exit(EXIT_FAILURE);
+        }
+        disk_size[i] = st.st_size;
+    }
+
+    // Update superblock pointers
+    struct wfs_sb sb;
+    sb.num_inodes = num_inodes;
+    sb.num_data_blocks = num_data_blocks;
+    sb.i_bitmap_ptr = BLOCK_SIZE;
+    sb.d_bitmap_ptr = sb.i_bitmap_ptr + inode_bitmap_size;
+    sb.i_blocks_ptr = sb.d_bitmap_ptr + data_bitmap_size;
+    sb.d_blocks_ptr = sb.i_blocks_ptr + inode_region_size;
+
+    printf("Superblock:\n");
+    printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
+    printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
+    printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
+    printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
+    printf("  Total size: %zu bytes\n", total_size);
+}
+
 int main(int argc, char *argv[]) {
     parse_args(argc, argv);
 
@@ -108,8 +155,17 @@ int main(int argc, char *argv[]) {
     printf("Number of inodes: %zu\n", num_inodes);
     printf("Number of data blocks: %zu\n", num_data_blocks);
 
+    // Disk sizes array
+    size_t *disk_size = malloc(num_disks * sizeof(size_t));
+    if (!disk_size) {
+        perror("Error allocating memory for disk sizes");
+        exit(EXIT_FAILURE);
+    }
+
+    calculate_disk_layout(disk_size);
+
     // Free allocated memory
     free(disk_files);
-
+    free(disk_size);
     return 0;
 }

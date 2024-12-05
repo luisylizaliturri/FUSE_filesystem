@@ -1,38 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include "wfs.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <time.h>
 
-// Constants
 #define MIN_DISKS 2
 #define RAID0 0
 #define RAID1 1
 #define RAID1V 2
 
-// Global variables for RAID and other inputs
+//globals
 int raid_mode = -1;
 char **disk_files = NULL;
 size_t num_disks = 0;
 size_t num_inodes = 0;
 size_t num_data_blocks = 0;
 
-// Function to print usage
+struct wfs_sb sb;
+
 void print_usage(const char *prog_name) {
-    fprintf(stderr, "Usage: %s -r <raid_mode> -d <disk_file> [-d <disk_file> ...] -i <num_inodes> -b <num_data_blocks>\n", prog_name);
+    fprintf(stderr, "Usage: %s -r <raid_mode> -d <disk_file> -i <num_inodes> -b <num_data_blocks>\n", prog_name);
     fprintf(stderr, "  <raid_mode>: 0 for RAID 0, 1 for RAID 1, 1v for RAID 1v\n");
     exit(EXIT_FAILURE);
 }
 
-// Function to parse command-line arguments
+//parse and validate CL arguments
 void parse_args(int argc, char *argv[]) {
     if (argc < 7) {
         print_usage(argv[0]);
@@ -49,7 +45,7 @@ void parse_args(int argc, char *argv[]) {
             } else if (strcmp(optarg, "1v") == 0) {
                 raid_mode = RAID1V;
             } else {
-                fprintf(stderr, "Error: Invalid RAID mode. Use 0, 1, or 1v.\n");
+                fprintf(stderr, "Error: Invalid RAID mode.\n");
                 print_usage(argv[0]);
             }
             break;
@@ -80,7 +76,6 @@ void parse_args(int argc, char *argv[]) {
         }
     }
 
-    // Post-processing validation
     if (raid_mode == -1) {
         fprintf(stderr, "Error: RAID mode not specified.\n");
         print_usage(argv[0]);
@@ -94,42 +89,39 @@ void parse_args(int argc, char *argv[]) {
         print_usage(argv[0]);
     }
 
-    // Round data blocks to nearest multiple of 32
+    //round data blocks to multiple of 32
     if (num_data_blocks % 32 != 0) {
         num_data_blocks = ((num_data_blocks / 32) + 1) * 32;
     }
 }
 
 void calculate_disk_layout(size_t *disk_size) {
-    // Round up inodes and data blocks to nearest multiple of 32
+    // Round up to nearest multiple of 32
     num_inodes = ((num_inodes + 31) / 32) * 32;
     num_data_blocks = ((num_data_blocks + 31) / 32) * 32;
+    size_t inode_bitmap_size = num_inodes / 8; 
+    size_t data_bitmap_size = num_data_blocks / 8;
 
-    // Correct bitmap size calculations
-    size_t inode_bitmap_size = num_inodes / 8; // Exact size in bytes
-    size_t data_bitmap_size = num_data_blocks / 8; // Exact size in bytes
-
-    // Superblock
-    struct wfs_sb sb;
-    sb.num_inodes = num_inodes; // Updated after rounding
-    sb.num_data_blocks = num_data_blocks; // Updated after rounding
-
-    // Set offsets
-    sb.i_bitmap_ptr = BLOCK_SIZE; // Superblock is 512 bytes
+    // superblock
+    sb.num_inodes = num_inodes; 
+    sb.num_data_blocks = num_data_blocks;
+    //offsets
+    sb.i_bitmap_ptr = BLOCK_SIZE; //superblock is 512 bytes
     sb.d_bitmap_ptr = sb.i_bitmap_ptr + inode_bitmap_size;
     sb.i_blocks_ptr = (sb.d_bitmap_ptr + data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1); // Align to block
     sb.d_blocks_ptr = sb.i_blocks_ptr + (num_inodes * BLOCK_SIZE);
 
     size_t total_size = sb.d_blocks_ptr + (num_data_blocks * BLOCK_SIZE);
 
-    printf("Superblock:\n");
-    printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
-    printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
-    printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
-    printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
-    printf("  Total size: %zu bytes\n", total_size);
+    //DEBUG
+    // printf("Superblock:\n");
+    // printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
+    // printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
+    // printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
+    // printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
+    // printf("  Total size: %zu bytes\n", total_size);
 
-    // Ensure all disks are large enough
+    //check disks are large enough
     for (size_t i = 0; i < num_disks; i++) {
         struct stat st;
         if (stat(disk_files[i], &st) == -1) {
@@ -144,12 +136,10 @@ void calculate_disk_layout(size_t *disk_size) {
     }
 }
 
-// Function to initialize the disk
 void initialize_disk(size_t *disk_size) {
-    // Allocate memory for bitmaps
-    size_t inode_bitmap_size = (num_inodes + 7) / 8; // Round up to nearest byte
-   
-    size_t data_bitmap_size = (num_data_blocks + 7) / 8; // Round up to nearest byte
+    //alloc memory for bitmaps
+    size_t inode_bitmap_size = (num_inodes + 7) / 8; //round up to nearest byte
+    size_t data_bitmap_size = (num_data_blocks + 7) / 8; 
    
     char *inode_bitmap = calloc(1, inode_bitmap_size);
     char *data_bitmap = calloc(1, data_bitmap_size);
@@ -158,21 +148,12 @@ void initialize_disk(size_t *disk_size) {
         exit(EXIT_FAILURE);
     }
 
-    inode_bitmap[0] |= 1; // Set the first bit of the first byte to 1
+    inode_bitmap[0] |= 1; //set the first bit of the first byte to 1
 
-    // Initialize superblock
-    struct wfs_sb sb;
-    sb.num_inodes = num_inodes;
-    sb.num_data_blocks = num_data_blocks;
-    sb.i_bitmap_ptr = BLOCK_SIZE;
-    sb.d_bitmap_ptr = sb.i_bitmap_ptr + inode_bitmap_size;
-    sb.i_blocks_ptr = (sb.d_bitmap_ptr + data_bitmap_size + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-    sb.d_blocks_ptr = sb.i_blocks_ptr + (num_inodes * BLOCK_SIZE);
-
-    // Initialize root inode
+    //init root inode
     struct wfs_inode root_inode = {
         .num = 0,
-        .mode = S_IFDIR | 0755,
+        .mode = S_IFDIR | 0755, //file type and mode
         .uid = getuid(),
         .gid = getgid(),
         .size = 0,
@@ -183,7 +164,7 @@ void initialize_disk(size_t *disk_size) {
     };
     memset(root_inode.blocks, 0, sizeof(root_inode.blocks));
 
-    // Write to each disk
+    //write to each disk
     for (size_t i = 0; i < num_disks; i++) {
         int fd = open(disk_files[i], O_RDWR);
         if (fd == -1) {
@@ -191,7 +172,7 @@ void initialize_disk(size_t *disk_size) {
             exit(EXIT_FAILURE);
         }
 
-        // Map the disk into memory
+        //Map disk into memory
         void *disk = mmap(NULL, disk_size[i], PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (disk == MAP_FAILED) {
             perror("Error mapping disk file");
@@ -199,23 +180,23 @@ void initialize_disk(size_t *disk_size) {
             exit(EXIT_FAILURE);
         }
 
-        // Write superblock
+        //write superblock
         memcpy(disk, &sb, sizeof(sb));
 
-        // Write bitmaps
+        //write bitmaps
         memcpy((char *)disk + sb.i_bitmap_ptr, inode_bitmap, inode_bitmap_size);
         memcpy((char *)disk + sb.d_bitmap_ptr, data_bitmap, data_bitmap_size);
 
-        // Write root inode
+        //write root inode
         memcpy((char *)disk + sb.i_blocks_ptr, &root_inode, sizeof(root_inode));
 
-        // Synchronize and unmap
+        //Sync and unmap
         msync(disk, disk_size[i], MS_SYNC);
         munmap(disk, disk_size[i]);
         close(fd);
     }
 
-    // Free allocated memory
+    //free memory
     free(inode_bitmap);
     free(data_bitmap);
 
@@ -226,14 +207,14 @@ void initialize_disk(size_t *disk_size) {
 int main(int argc, char *argv[]) {
     parse_args(argc, argv);
 
-    // For now, print parsed arguments for debugging
-    printf("RAID mode: %d\n", raid_mode);
-    printf("Number of disks: %zu\n", num_disks);
-    for (size_t i = 0; i < num_disks; i++) {
-        printf("Disk %zu: %s\n", i + 1, disk_files[i]);
-    }
-    printf("Number of inodes: %zu\n", num_inodes);
-    printf("Number of data blocks: %zu\n", num_data_blocks);
+    //DEBUG 
+    // printf("RAID mode: %d\n", raid_mode);
+    // printf("Number of disks: %zu\n", num_disks);
+    // for (size_t i = 0; i < num_disks; i++) {
+    //     printf("Disk %zu: %s\n", i + 1, disk_files[i]);
+    // }
+    // printf("Number of inodes: %zu\n", num_inodes);
+    // printf("Number of data blocks: %zu\n", num_data_blocks);
 
     // Disk sizes array
     size_t *disk_size = malloc(num_disks * sizeof(size_t));
@@ -245,7 +226,7 @@ int main(int argc, char *argv[]) {
     calculate_disk_layout(disk_size);
     initialize_disk(disk_size);
 
-    // Free allocated memory
+    //free memory
     free(disk_files);
     free(disk_size);
     return 0;

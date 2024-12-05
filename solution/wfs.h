@@ -1,3 +1,6 @@
+#ifndef WFS_H
+#define WFS_H
+
 #include <time.h>
 #include <sys/stat.h>
 
@@ -55,3 +58,15 @@ struct wfs_dentry {
     char name[MAX_NAME];
     int num;
 };
+
+// Function prototypes for FUSE operations
+int wfs_getattr(const char *path, struct stat *stbuf);
+int wfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
+int wfs_mknod(const char *path, mode_t mode, dev_t rdev);
+int wfs_mkdir(const char *path, mode_t mode);
+int wfs_unlink(const char *path);
+int wfs_rmdir(const char *path);
+int wfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+int wfs_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+
+#endif // WFS_H

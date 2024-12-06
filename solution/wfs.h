@@ -1,8 +1,11 @@
 #ifndef WFS_H
 #define WFS_H
 
+
 #include <time.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
 
 #define BLOCK_SIZE (512)
 #define MAX_NAME   (28)
@@ -59,14 +62,14 @@ struct wfs_dentry {
     int num;
 };
 
-// Function prototypes for FUSE operations
-int wfs_getattr(const char *path, struct stat *stbuf);
-int wfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
-int wfs_mknod(const char *path, mode_t mode, dev_t rdev);
-int wfs_mkdir(const char *path, mode_t mode);
-int wfs_unlink(const char *path);
-int wfs_rmdir(const char *path);
-int wfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
-int wfs_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+// // Function prototypes for FUSE operations
+// int wfs_getattr(const char *path, struct stat *stbuf);
+// int wfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
+// int wfs_mknod(const char *path, mode_t mode, dev_t rdev);
+// int wfs_mkdir(const char *path, mode_t mode);
+// int wfs_unlink(const char *path);
+// int wfs_rmdir(const char *path);
+// int wfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+// int wfs_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 
 #endif // WFS_H

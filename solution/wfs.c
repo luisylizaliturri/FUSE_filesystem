@@ -100,10 +100,67 @@ void initialize_disks_and_superblock(int argc, char *argv[]) {
     printf("Disks initialized.\n");
 }
 
+
+
+
+
+
+
+
+void parse_args(int argc, char *argv[]) {
+    if (argc < 3) { // ./wfs disk1 disk2 mount_point
+        fprintf(stderr, "Usage: %s <disk1> <disk2> [FUSE options] <mount_point>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    // Store disk files
+    size_t i;
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "-f") == 0) {
+            break; // Stop at FUSE options
+        }
+        disk_files = realloc(disk_files, (num_disks + 1) * sizeof(char *));
+        if (!disk_files) {
+            perror("Error allocating memory for disk files");
+            exit(EXIT_FAILURE);
+        }
+        disk_files[num_disks++] = argv[i];
+    }
+
+    // Validate the number of disk files
+    if (num_disks < 2) {
+        fprintf(stderr, "Error: At least two disk files are required.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Validate mount point
+    if (i >= argc) {
+        fprintf(stderr, "Error: Mount point not specified.\n");
+        exit(EXIT_FAILURE);
+    }
+    //const char *mount_point = argv[argc - 1]; // Last argument is the mount point
+
+    //DEBUG
+    // printf("Number of disks: %zu\n", num_disks);
+    // for (size_t j = 0; j < num_disks; j++) {
+    //     printf("Disk %zu: %s\n", j + 1, disk_files[j]);
+    // }
+    // printf("Mount point: %s\n", mount_point);
+}
+
 // Main function
 int main(int argc, char *argv[]) {
+    parse_args(argc, argv);
     initialize_disks_and_superblock(argc, argv);
 
+    //Debug
+    // printf("Number of disks: %ld\n", num_disks);
+    // printf("list of arguments");
+    // for (int i = num_disks+ 1; i < argc; i++) {
+    //     printf("%s ", argv[i]);
+    // }
+
+
     printf("WFS starting...\n");
-    return fuse_main(argc, argv, &ops, NULL);
+    return fuse_main(argc-(num_disks + 1), &argv[num_disks+ 1], &ops, NULL);
 }

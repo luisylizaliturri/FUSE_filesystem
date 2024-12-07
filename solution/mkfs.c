@@ -114,6 +114,11 @@ void calculate_disk_layout(size_t *disk_size) {
     size_t total_size = sb.d_blocks_ptr + (num_data_blocks * BLOCK_SIZE);
 
     //DEBUG
+    printf("Superblock:\n");
+    printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
+    printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);
+    printf("  Inode region offset: %zu\n", sb.i_blocks_ptr);
+    printf("  Data blocks offset: %zu\n", sb.d_blocks_ptr);
     // printf("Superblock:\n");
     // printf("  Inode bitmap offset: %zu\n", sb.i_bitmap_ptr);
     // printf("  Data bitmap offset: %zu\n", sb.d_bitmap_ptr);

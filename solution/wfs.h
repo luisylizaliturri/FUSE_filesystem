@@ -7,7 +7,7 @@
 #include <sys/types.h>
 
 
-#define BLOCK_SIZE (512)
+#define BLOCK_SIZE (512) //bits  
 #define MAX_NAME   (28)
 
 #define D_BLOCK    (6)
@@ -38,6 +38,8 @@ struct wfs_sb {
     off_t i_blocks_ptr;
     off_t d_blocks_ptr;
     // Extend after this line
+    int raid_mode; //raid mode 0, 1, 1v
+    int disk_id; //disk id
 };
 
 // Inode
@@ -53,7 +55,7 @@ struct wfs_inode {
     time_t mtim;      /* Time of last modification */
     time_t ctim;      /* Time of last status change */
 
-    off_t blocks[N_BLOCKS];
+    off_t blocks[N_BLOCKS]; 
 };
 
 // Directory entry

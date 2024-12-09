@@ -339,6 +339,7 @@ int add_entry_to_parent_directory(struct wfs_inode *parent, const char *name, in
                     strncpy(entries[i].name, name, MAX_NAME);
                     entries[i].num = inode_num;
                     parent->size += sizeof(struct wfs_dentry);
+                    parent->nlinks++;
                     return 0;
                 }
             }
@@ -360,6 +361,7 @@ int add_entry_to_parent_directory(struct wfs_inode *parent, const char *name, in
                         entries[i].num = inode_num;
                     }
                     parent->size += sizeof(struct wfs_dentry);
+                    parent->nlinks++;
                     return 0;
                 }
             }
@@ -462,8 +464,6 @@ int handle_inode_insertion(const char *path, mode_t mode) {
     }
 
 
-
-
     //Update parent inode on all disks
     for (size_t disk = 0; disk < num_disks; disk++) {
         // Calculate block-aligned offset for parent inode
@@ -491,7 +491,6 @@ static int remove_dir_entry(struct wfs_inode *parent, const char *name) {
     if (!entry) {
         return -ENOENT;
     }
-
     // Calculate block offset and entry position
     off_t block_offset = super_block.d_blocks_ptr + 
                         ((parent->blocks[0] - 1) * BLOCK_SIZE);
@@ -507,6 +506,17 @@ static int remove_dir_entry(struct wfs_inode *parent, const char *name) {
                 ((char *)disk_map[disk] + block_offset + entry_offset);
             memset(disk_entry, 0, sizeof(struct wfs_dentry));
         }
+    }
+
+    // Update parent metadata
+    parent->size -= sizeof(struct wfs_dentry);
+    parent->nlinks--;
+
+    // Update parent inode on all disks
+    for (size_t disk = 0; disk < num_disks; disk++) {
+        char *inode_block = (char *)disk_map[disk] + super_block.i_blocks_ptr + 
+                           (parent->num * BLOCK_SIZE);
+        memcpy(inode_block, parent, sizeof(struct wfs_inode));
     }
 
     return 0;
@@ -841,7 +851,55 @@ int wfs_unlink(const char *path) {
 
 int wfs_rmdir(const char *path) {
     printf("rmdir called: %s\n", path);
-    return 0; // Not implemented yet
+    
+    // Don't allow removing root
+    if (strcmp(path, "/") == 0) {
+        return -EBUSY;
+    }
+
+    // Get directory inode
+    struct wfs_inode *inode = get_inode(path);
+    if (!inode) return -ENOENT;
+    if (!S_ISDIR(inode->mode)) return -ENOTDIR;
+    
+    // Check if directory is empty
+    if (inode->size > 0) {
+        return -ENOTEMPTY;
+    }
+
+    // Get parent
+    char *parent_path = get_parent_path(path);
+    char *dir_name = get_file_name(path);
+    struct wfs_inode *parent = get_inode(parent_path);
+    if (!parent) {
+        free(parent_path);
+        free(dir_name);
+        return -ENOENT;
+    }
+
+    // Remove from parent directory
+    int ret = remove_dir_entry(parent, dir_name);
+    if (ret < 0) {
+        free(parent_path);
+        free(dir_name);
+        return ret;
+    }
+
+    // Update parent's link count (for removed ..)
+    parent->nlinks--;
+
+    // Update parent inode on all disks
+    for (size_t disk = 0; disk < num_disks; disk++) {
+        char *inode_block = (char *)disk_map[disk] + super_block.i_blocks_ptr + 
+                           (parent->num * BLOCK_SIZE);
+        memcpy(inode_block, parent, sizeof(struct wfs_inode));
+    }
+
+    // Free directory's inode and blocks
+    free_inode(inode);
+    free(parent_path);
+    free(dir_name);
+    return 0;
 }
 
 int wfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {

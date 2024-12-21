@@ -1,0 +1,635 @@
+Superblock 0:
+  Inode bitmap offset: 512
+  Data bitmap offset: 516
+  Inode region offset: 1024
+  Data blocks offset: 17408
+  RAID mode: 1
+  Disk ID: 0
+Superblock 1:
+  Inode bitmap offset: 512
+  Data bitmap offset: 516
+  Inode region offset: 1024
+  Data blocks offset: 17408
+  RAID mode: 1
+  Disk ID: 1
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+WFS starting...
+getattr called: /
+get_inode called: path: /
+getattr called: /
+get_inode called: path: /
+getattr called: /file1
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): file1 not found in any block
+get_inode() NOT FOUND: path: /file1, component: file1
+getattr called: /file10
+get_inode called: path: /file10
+get_inode called: path: /
+find_dir_entry(): looking for file10
+find_dir_entry(): file10 not found in any block
+get_inode() NOT FOUND: path: /file10, component: file10
+getattr called: /file11
+get_inode called: path: /file11
+get_inode called: path: /
+find_dir_entry(): looking for file11
+find_dir_entry(): file11 not found in any block
+get_inode() NOT FOUND: path: /file11, component: file11
+getattr called: /file12
+get_inode called: path: /file12
+get_inode called: path: /
+find_dir_entry(): looking for file12
+find_dir_entry(): file12 not found in any block
+get_inode() NOT FOUND: path: /file12, component: file12
+getattr called: /file13
+get_inode called: path: /file13
+get_inode called: path: /
+find_dir_entry(): looking for file13
+find_dir_entry(): file13 not found in any block
+get_inode() NOT FOUND: path: /file13, component: file13
+getattr called: /file14
+get_inode called: path: /file14
+get_inode called: path: /
+find_dir_entry(): looking for file14
+find_dir_entry(): file14 not found in any block
+get_inode() NOT FOUND: path: /file14, component: file14
+getattr called: /file15
+get_inode called: path: /file15
+get_inode called: path: /
+find_dir_entry(): looking for file15
+find_dir_entry(): file15 not found in any block
+get_inode() NOT FOUND: path: /file15, component: file15
+getattr called: /file16
+get_inode called: path: /file16
+get_inode called: path: /
+find_dir_entry(): looking for file16
+find_dir_entry(): file16 not found in any block
+get_inode() NOT FOUND: path: /file16, component: file16
+getattr called: /file17
+get_inode called: path: /file17
+get_inode called: path: /
+find_dir_entry(): looking for file17
+find_dir_entry(): file17 not found in any block
+get_inode() NOT FOUND: path: /file17, component: file17
+getattr called: /file18
+get_inode called: path: /file18
+get_inode called: path: /
+find_dir_entry(): looking for file18
+find_dir_entry(): file18 not found in any block
+get_inode() NOT FOUND: path: /file18, component: file18
+getattr called: /file19
+get_inode called: path: /file19
+get_inode called: path: /
+find_dir_entry(): looking for file19
+find_dir_entry(): file19 not found in any block
+get_inode() NOT FOUND: path: /file19, component: file19
+getattr called: /file2
+get_inode called: path: /file2
+get_inode called: path: /
+find_dir_entry(): looking for file2
+find_dir_entry(): file2 not found in any block
+get_inode() NOT FOUND: path: /file2, component: file2
+getattr called: /file20
+get_inode called: path: /file20
+get_inode called: path: /
+find_dir_entry(): looking for file20
+find_dir_entry(): file20 not found in any block
+get_inode() NOT FOUND: path: /file20, component: file20
+getattr called: /file21
+get_inode called: path: /file21
+get_inode called: path: /
+find_dir_entry(): looking for file21
+find_dir_entry(): file21 not found in any block
+get_inode() NOT FOUND: path: /file21, component: file21
+getattr called: /file22
+get_inode called: path: /file22
+get_inode called: path: /
+find_dir_entry(): looking for file22
+find_dir_entry(): file22 not found in any block
+get_inode() NOT FOUND: path: /file22, component: file22
+getattr called: /file23
+get_inode called: path: /file23
+get_inode called: path: /
+find_dir_entry(): looking for file23
+find_dir_entry(): file23 not found in any block
+get_inode() NOT FOUND: path: /file23, component: file23
+getattr called: /file24
+get_inode called: path: /file24
+get_inode called: path: /
+find_dir_entry(): looking for file24
+find_dir_entry(): file24 not found in any block
+get_inode() NOT FOUND: path: /file24, component: file24
+getattr called: /file25
+get_inode called: path: /file25
+get_inode called: path: /
+find_dir_entry(): looking for file25
+find_dir_entry(): file25 not found in any block
+get_inode() NOT FOUND: path: /file25, component: file25
+getattr called: /file26
+get_inode called: path: /file26
+get_inode called: path: /
+find_dir_entry(): looking for file26
+find_dir_entry(): file26 not found in any block
+get_inode() NOT FOUND: path: /file26, component: file26
+getattr called: /file27
+get_inode called: path: /file27
+get_inode called: path: /
+find_dir_entry(): looking for file27
+find_dir_entry(): file27 not found in any block
+get_inode() NOT FOUND: path: /file27, component: file27
+getattr called: /file28
+get_inode called: path: /file28
+get_inode called: path: /
+find_dir_entry(): looking for file28
+find_dir_entry(): file28 not found in any block
+get_inode() NOT FOUND: path: /file28, component: file28
+getattr called: /file29
+get_inode called: path: /file29
+get_inode called: path: /
+find_dir_entry(): looking for file29
+find_dir_entry(): file29 not found in any block
+get_inode() NOT FOUND: path: /file29, component: file29
+getattr called: /file3
+get_inode called: path: /file3
+get_inode called: path: /
+find_dir_entry(): looking for file3
+find_dir_entry(): file3 not found in any block
+get_inode() NOT FOUND: path: /file3, component: file3
+getattr called: /file30
+get_inode called: path: /file30
+get_inode called: path: /
+find_dir_entry(): looking for file30
+find_dir_entry(): file30 not found in any block
+get_inode() NOT FOUND: path: /file30, component: file30
+getattr called: /file31
+get_inode called: path: /file31
+get_inode called: path: /
+find_dir_entry(): looking for file31
+find_dir_entry(): file31 not found in any block
+get_inode() NOT FOUND: path: /file31, component: file31
+getattr called: /file32
+get_inode called: path: /file32
+get_inode called: path: /
+find_dir_entry(): looking for file32
+find_dir_entry(): file32 not found in any block
+get_inode() NOT FOUND: path: /file32, component: file32
+getattr called: /file4
+get_inode called: path: /file4
+get_inode called: path: /
+find_dir_entry(): looking for file4
+find_dir_entry(): file4 not found in any block
+get_inode() NOT FOUND: path: /file4, component: file4
+getattr called: /file5
+get_inode called: path: /file5
+get_inode called: path: /
+find_dir_entry(): looking for file5
+find_dir_entry(): file5 not found in any block
+get_inode() NOT FOUND: path: /file5, component: file5
+getattr called: /file6
+get_inode called: path: /file6
+get_inode called: path: /
+find_dir_entry(): looking for file6
+find_dir_entry(): file6 not found in any block
+get_inode() NOT FOUND: path: /file6, component: file6
+getattr called: /file7
+get_inode called: path: /file7
+get_inode called: path: /
+find_dir_entry(): looking for file7
+find_dir_entry(): file7 not found in any block
+get_inode() NOT FOUND: path: /file7, component: file7
+getattr called: /file8
+get_inode called: path: /file8
+get_inode called: path: /
+find_dir_entry(): looking for file8
+find_dir_entry(): file8 not found in any block
+get_inode() NOT FOUND: path: /file8, component: file8
+getattr called: /file9
+get_inode called: path: /file9
+get_inode called: path: /
+find_dir_entry(): looking for file9
+find_dir_entry(): file9 not found in any block
+get_inode() NOT FOUND: path: /file9, component: file9
+getattr called: /file1
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): file1 not found in any block
+get_inode() NOT FOUND: path: /file1, component: file1
+getattr called: /file10
+get_inode called: path: /file10
+get_inode called: path: /
+find_dir_entry(): looking for file10
+find_dir_entry(): file10 not found in any block
+get_inode() NOT FOUND: path: /file10, component: file10
+getattr called: /file11
+get_inode called: path: /file11
+get_inode called: path: /
+find_dir_entry(): looking for file11
+find_dir_entry(): file11 not found in any block
+get_inode() NOT FOUND: path: /file11, component: file11
+getattr called: /file12
+get_inode called: path: /file12
+get_inode called: path: /
+find_dir_entry(): looking for file12
+find_dir_entry(): file12 not found in any block
+get_inode() NOT FOUND: path: /file12, component: file12
+getattr called: /file13
+get_inode called: path: /file13
+get_inode called: path: /
+find_dir_entry(): looking for file13
+find_dir_entry(): file13 not found in any block
+get_inode() NOT FOUND: path: /file13, component: file13
+getattr called: /file14
+get_inode called: path: /file14
+get_inode called: path: /
+find_dir_entry(): looking for file14
+find_dir_entry(): file14 not found in any block
+get_inode() NOT FOUND: path: /file14, component: file14
+getattr called: /file15
+get_inode called: path: /file15
+get_inode called: path: /
+find_dir_entry(): looking for file15
+find_dir_entry(): file15 not found in any block
+get_inode() NOT FOUND: path: /file15, component: file15
+getattr called: /file16
+get_inode called: path: /file16
+get_inode called: path: /
+find_dir_entry(): looking for file16
+find_dir_entry(): file16 not found in any block
+get_inode() NOT FOUND: path: /file16, component: file16
+getattr called: /file17
+get_inode called: path: /file17
+get_inode called: path: /
+find_dir_entry(): looking for file17
+find_dir_entry(): file17 not found in any block
+get_inode() NOT FOUND: path: /file17, component: file17
+getattr called: /file18
+get_inode called: path: /file18
+get_inode called: path: /
+find_dir_entry(): looking for file18
+find_dir_entry(): file18 not found in any block
+get_inode() NOT FOUND: path: /file18, component: file18
+getattr called: /file19
+get_inode called: path: /file19
+get_inode called: path: /
+find_dir_entry(): looking for file19
+find_dir_entry(): file19 not found in any block
+get_inode() NOT FOUND: path: /file19, component: file19
+getattr called: /file2
+get_inode called: path: /file2
+get_inode called: path: /
+find_dir_entry(): looking for file2
+find_dir_entry(): file2 not found in any block
+get_inode() NOT FOUND: path: /file2, component: file2
+getattr called: /file20
+get_inode called: path: /file20
+get_inode called: path: /
+find_dir_entry(): looking for file20
+find_dir_entry(): file20 not found in any block
+get_inode() NOT FOUND: path: /file20, component: file20
+getattr called: /file21
+get_inode called: path: /file21
+get_inode called: path: /
+find_dir_entry(): looking for file21
+find_dir_entry(): file21 not found in any block
+get_inode() NOT FOUND: path: /file21, component: file21
+getattr called: /file22
+get_inode called: path: /file22
+get_inode called: path: /
+find_dir_entry(): looking for file22
+find_dir_entry(): file22 not found in any block
+get_inode() NOT FOUND: path: /file22, component: file22
+getattr called: /file23
+get_inode called: path: /file23
+get_inode called: path: /
+find_dir_entry(): looking for file23
+find_dir_entry(): file23 not found in any block
+get_inode() NOT FOUND: path: /file23, component: file23
+getattr called: /file24
+get_inode called: path: /file24
+get_inode called: path: /
+find_dir_entry(): looking for file24
+find_dir_entry(): file24 not found in any block
+get_inode() NOT FOUND: path: /file24, component: file24
+getattr called: /file25
+get_inode called: path: /file25
+get_inode called: path: /
+find_dir_entry(): looking for file25
+find_dir_entry(): file25 not found in any block
+get_inode() NOT FOUND: path: /file25, component: file25
+getattr called: /file26
+get_inode called: path: /file26
+get_inode called: path: /
+find_dir_entry(): looking for file26
+find_dir_entry(): file26 not found in any block
+get_inode() NOT FOUND: path: /file26, component: file26
+getattr called: /file27
+get_inode called: path: /file27
+get_inode called: path: /
+find_dir_entry(): looking for file27
+find_dir_entry(): file27 not found in any block
+get_inode() NOT FOUND: path: /file27, component: file27
+getattr called: /file28
+get_inode called: path: /file28
+get_inode called: path: /
+find_dir_entry(): looking for file28
+find_dir_entry(): file28 not found in any block
+get_inode() NOT FOUND: path: /file28, component: file28
+getattr called: /file29
+get_inode called: path: /file29
+get_inode called: path: /
+find_dir_entry(): looking for file29
+find_dir_entry(): file29 not found in any block
+get_inode() NOT FOUND: path: /file29, component: file29
+getattr called: /file3
+get_inode called: path: /file3
+get_inode called: path: /
+find_dir_entry(): looking for file3
+find_dir_entry(): file3 not found in any block
+get_inode() NOT FOUND: path: /file3, component: file3
+getattr called: /file30
+get_inode called: path: /file30
+get_inode called: path: /
+find_dir_entry(): looking for file30
+find_dir_entry(): file30 not found in any block
+get_inode() NOT FOUND: path: /file30, component: file30
+getattr called: /file31
+get_inode called: path: /file31
+get_inode called: path: /
+find_dir_entry(): looking for file31
+find_dir_entry(): file31 not found in any block
+get_inode() NOT FOUND: path: /file31, component: file31
+getattr called: /file32
+get_inode called: path: /file32
+get_inode called: path: /
+find_dir_entry(): looking for file32
+find_dir_entry(): file32 not found in any block
+get_inode() NOT FOUND: path: /file32, component: file32
+getattr called: /file4
+get_inode called: path: /file4
+get_inode called: path: /
+find_dir_entry(): looking for file4
+find_dir_entry(): file4 not found in any block
+get_inode() NOT FOUND: path: /file4, component: file4
+getattr called: /file5
+get_inode called: path: /file5
+get_inode called: path: /
+find_dir_entry(): looking for file5
+find_dir_entry(): file5 not found in any block
+get_inode() NOT FOUND: path: /file5, component: file5
+getattr called: /file6
+get_inode called: path: /file6
+get_inode called: path: /
+find_dir_entry(): looking for file6
+find_dir_entry(): file6 not found in any block
+get_inode() NOT FOUND: path: /file6, component: file6
+getattr called: /file7
+get_inode called: path: /file7
+get_inode called: path: /
+find_dir_entry(): looking for file7
+find_dir_entry(): file7 not found in any block
+get_inode() NOT FOUND: path: /file7, component: file7
+getattr called: /file8
+get_inode called: path: /file8
+get_inode called: path: /
+find_dir_entry(): looking for file8
+find_dir_entry(): file8 not found in any block
+get_inode() NOT FOUND: path: /file8, component: file8
+getattr called: /file9
+get_inode called: path: /file9
+get_inode called: path: /
+find_dir_entry(): looking for file9
+find_dir_entry(): file9 not found in any block
+get_inode() NOT FOUND: path: /file9, component: file9
+readdir called: /
+getattr called: /file1
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): file1 not found in any block
+get_inode() NOT FOUND: path: /file1, component: file1
+mknod called: /file1
+get_inode called: path: /
+Allocated new inode: index: 1
+Adding entry: file1 (inode 1) to parent directory
+Parent initial size: 0
+Parent blocks[0]: 0
+Allocated new data block: 1
+adding new direntry in RAID1/RAID1V mode
+getattr called: /file1
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): checking block 0: disk_idx=0, block_offset=17408
+find_dir_entry(): block 0: checking entries 0 to 0
+ENTRY-NAME:file1 NAME0: file1
+find_dir_entry(): found file1 at block 0, index 0
+get_inode(): path: /file1, entry_num: 1
+get_inode(): path: /file1, inode_num: 1
+get_inode(): path: /file1, inode_num: 1
+write called: /file1, size=4096, offset=0
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): checking block 0: disk_idx=0, block_offset=17408
+find_dir_entry(): block 0: checking entries 0 to 0
+ENTRY-NAME:file1 NAME0: file1
+find_dir_entry(): found file1 at block 0, index 0
+get_inode(): path: /file1, entry_num: 1
+get_inode(): path: /file1, inode_num: 1
+get_inode(): path: /file1, inode_num: 1
+Get indirect block if needed
+After Writing to block 3
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 4
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 5
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 6
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 7
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 8
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 9
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 10
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+Wrote bytes
+write called: /file1, size=4096, offset=4096
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): checking block 0: disk_idx=0, block_offset=17408
+find_dir_entry(): block 0: checking entries 0 to 0
+ENTRY-NAME:file1 NAME0: file1
+find_dir_entry(): found file1 at block 0, index 0
+get_inode(): path: /file1, entry_num: 1
+get_inode(): path: /file1, inode_num: 1
+get_inode(): path: /file1, inode_num: 1
+Get indirect block if needed
+After Writing to block 11
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 12
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 13
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 14
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 15
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 16
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 17
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+After Writing to block 18
+
+=== Comparing Data Block Regions ===
+
+Block 1:
+Disk 0: 0a 00 00 00 00 00 00 00 0b 00 00 00 00 00 00 00 ...
+ASCII: ...................
+Disk 1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+ASCII: ...................
+===========================
+Wrote bytes
+getattr called: /file1
+get_inode called: path: /file1
+get_inode called: path: /
+find_dir_entry(): looking for file1
+find_dir_entry(): checking block 0: disk_idx=0, block_offset=17408
+find_dir_entry(): block 0: checking entries 0 to 0
+ENTRY-NAME:file1 NAME0: file1
+find_dir_entry(): found file1 at block 0, index 0
+get_inode(): path: /file1, entry_num: 1
+get_inode(): path: /file1, inode_num: 1
+get_inode(): path: /file1, inode_num: 1
